@@ -1,0 +1,32 @@
+{
+  "overall_document_confidence": 0.92,
+  "handwriting_detected": false,
+  "medicines": [],
+  "diagnoses": [],
+  "lab_values": [
+    {
+      "test_name": "Fasting Plasma Glucose",
+      "value": "126",
+      "unit": "mg/dL",
+      "status": "High",
+      "confidence": 0.94,
+      "reasoning": "Tabular digital text match"
+    },
+    {
+      "test_name": "Serum Potassium",
+      "value": "4.2",
+      "unit": "mmol/L",
+      "status": "Normal",
+      "confidence": 0.9,
+      "reasoning": "Tabular digital text match"
+    }
+  ],
+  "dates": [
+    {
+      "type": "Document Date",
+      "date_value": "2026-09-18",
+      "confidence": 0.95
+    }
+  ],
+  "allergies": []
+}

@@ -1,0 +1,30 @@
+{
+  "overall_document_confidence": 0.92,
+  "handwriting_detected": false,
+  "medicines": [
+    {
+      "name": "Atorvastatin",
+      "dose": "40 mg",
+      "frequency": "Once daily at bedtime",
+      "confidence": 0.92,
+      "reasoning": "Discharge medication list match"
+    }
+  ],
+  "diagnoses": [
+    {
+      "condition": "Acute Coronary Syndrome",
+      "status": "Managed",
+      "confidence": 0.89,
+      "reasoning": "Discharge summary diagnosis section"
+    }
+  ],
+  "lab_values": [],
+  "dates": [
+    {
+      "type": "Document Date",
+      "date_value": "2026-09-18",
+      "confidence": 0.95
+    }
+  ],
+  "allergies": []
+}

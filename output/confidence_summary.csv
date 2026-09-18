@@ -1,0 +1,10 @@
+document_name,category,field_name,value,confidence_score,flagged_for_review,threshold_rule,reasoning
+discharge_summary_cardiology.png,Medication,Atorvastatin,"Dose: 40 mg, Freq: Once daily at bedtime",0.92,False,0.85 Critical Threshold,Discharge medication list match
+discharge_summary_cardiology.png,Diagnosis,Condition,Acute Coronary Syndrome,0.89,False,0.80 High Risk Threshold,Discharge summary diagnosis section
+discharge_summary_sample.pdf,Medication,Atorvastatin,"Dose: 40 mg, Freq: Once daily at bedtime",0.92,False,0.85 Critical Threshold,Discharge medication list match
+discharge_summary_sample.pdf,Diagnosis,Condition,Acute Coronary Syndrome,0.89,False,0.80 High Risk Threshold,Discharge summary diagnosis section
+lab_report_blood_panel.png,Lab Value,Fasting Plasma Glucose,126 mg/dL (High),0.94,False,0.80 High Risk Threshold,Tabular digital text match
+lab_report_blood_panel.png,Lab Value,Serum Potassium,4.2 mmol/L (Normal),0.9,False,0.80 High Risk Threshold,Tabular digital text match
+lab_report_sample.pdf,Lab Value,Fasting Plasma Glucose,126 mg/dL (High),0.94,False,0.80 High Risk Threshold,Tabular digital text match
+lab_report_sample.pdf,Lab Value,Serum Potassium,4.2 mmol/L (Normal),0.9,False,0.80 High Risk Threshold,Tabular digital text match
+prescription_handwritten_sample.png,Medication,Amoxicillin,"Dose: 250 mg, Freq: Three times daily",0.62,True,0.85 Critical Threshold,OCR cursive handwriting difficulty
