@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Upload, X, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
 import { api } from '../api';
 
-export default function UploadModal({ isOpen, onClose, patientId, onUploadSuccess }) {
+export default function UploadModal({ isOpen, onClose, patientId, onUploadSuccess, token }) {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
@@ -23,12 +23,17 @@ export default function UploadModal({ isOpen, onClose, patientId, onUploadSucces
       return;
     }
 
+    if (!patientId) {
+      setError('No patient profile is loaded. Please sign in again before uploading.');
+      return;
+    }
+
     setUploading(true);
     setError('');
     setSuccessMsg('');
 
     try {
-      const res = await api.uploadDocument(file, patientId);
+      await api.uploadDocument(file, patientId, token);
       setSuccessMsg('Document uploaded! Extraction pipeline enqueued in Redis worker.');
       setTimeout(() => {
         setUploading(false);
@@ -37,7 +42,14 @@ export default function UploadModal({ isOpen, onClose, patientId, onUploadSucces
         onClose();
       }, 1500);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Document upload failed. Check server connection.');
+      const detail = err.response?.data?.detail;
+      if (detail) {
+        setError(detail);
+      } else if (err.response) {
+        setError(`Upload failed (HTTP ${err.response.status}). Please try again.`);
+      } else {
+        setError('Document upload failed. Check server connection.');
+      }
       setUploading(false);
     }
   };

@@ -3,12 +3,12 @@ import { X, Lock, Mail, User, Building, ShieldAlert } from 'lucide-react';
 import { api } from '../api';
 import axios from 'axios';
 
-export default function LoginRegisterModal({ isOpen, onClose, onAuthSuccess }) {
+export default function LoginRegisterModal({ isOpen, onClose, onAuthSuccess, initialRole }) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [role, setRole] = useState('patient'); // 'patient' or 'doctor'
+  const [role, setRole] = useState(initialRole || 'patient'); // 'patient' or 'doctor'
   const [hospitalId, setHospitalId] = useState('');
   const [licenseNumber, setLicenseNumber] = useState('');
   const [specialty, setSpecialty] = useState('');

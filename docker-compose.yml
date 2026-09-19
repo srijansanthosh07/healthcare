@@ -102,6 +102,8 @@ services:
     restart: always
     ports:
       - "3000:3000"
+    environment:
+      - VITE_API_TARGET=http://api:8000
     depends_on:
       - api
 

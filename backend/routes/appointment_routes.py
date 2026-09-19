@@ -47,7 +47,8 @@ def book_appointment(
     Patient books an appointment with a verified platform doctor (FR-26).
     """
     patient = db.query(Patient).filter(Patient.user_id == current_user.id).first()
-    patient_id = patient.id if patient else "demo-patient-01"
+    if not patient:
+        raise HTTPException(status_code=400, detail="Patient profile not found")
 
     # Verify target doctor is registered and verified on platform (FR-26 Rule)
     doctor_prof = db.query(DoctorProfile).filter(DoctorProfile.user_id == req.doctor_id).first()
@@ -63,7 +64,7 @@ def book_appointment(
         s_time = datetime.datetime.utcnow() + datetime.timedelta(days=2)
 
     appt = Appointment(
-        patient_id=patient_id,
+        patient_id=patient.id,
         doctor_id=req.doctor_id,
         slot_time=s_time,
         status="scheduled",
@@ -73,7 +74,7 @@ def book_appointment(
     db.commit()
     db.refresh(appt)
 
-    write_audit_log(current_user.id, patient_id, "BOOK_APPOINTMENT", "appointment", db)
+    write_audit_log(current_user.id, patient.id, "BOOK_APPOINTMENT", "appointment", db)
 
     return {
         "id": appt.id,
@@ -93,8 +94,9 @@ def get_appointments(
     """
     if current_user.role == "patient":
         patient = db.query(Patient).filter(Patient.user_id == current_user.id).first()
-        p_id = patient.id if patient else "demo-patient-01"
-        appts = db.query(Appointment).filter(Appointment.patient_id == p_id).order_by(Appointment.slot_time.asc()).all()
+        if not patient:
+            return []
+        appts = db.query(Appointment).filter(Appointment.patient_id == patient.id).order_by(Appointment.slot_time.asc()).all()
     elif current_user.role == "doctor":
         appts = db.query(Appointment).filter(Appointment.doctor_id == current_user.id).order_by(Appointment.slot_time.asc()).all()
     else:

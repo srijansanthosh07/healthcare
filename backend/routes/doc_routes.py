@@ -22,17 +22,29 @@ async def upload_document(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    # Validate patient_id was provided (guards against empty/stale frontend state)
+    if not patient_id or not patient_id.strip():
+        raise HTTPException(status_code=400, detail="A valid patient_id is required to upload a document.")
+
     # Validate patient exists
     patient = db.query(Patient).filter(Patient.id == patient_id).first()
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found")
 
+    # Authorization: only the patient themselves (or an admin) may upload to this record
+    if current_user.role != "admin" and patient.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You are not authorized to upload documents for this patient.")
+
     # Validate file extension
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="Uploaded file is missing a filename.")
     ext = os.path.splitext(file.filename)[1].lower().replace(".", "")
     if ext not in ["pdf", "png", "jpg", "jpeg"]:
         raise HTTPException(status_code=400, detail="Unsupported file format. Allowed: PDF, PNG, JPG")
 
     file_bytes = await file.read()
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
     max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
     if len(file_bytes) > max_bytes:
         raise HTTPException(status_code=400, detail=f"File exceeds maximum size of {settings.MAX_UPLOAD_SIZE_MB}MB")
@@ -42,7 +54,11 @@ async def upload_document(
 
     # Step 1: Upload file to encrypted MinIO S3 object storage
     content_type = file.content_type or ("application/pdf" if ext == "pdf" else f"image/{ext}")
-    storage_client.upload_file_bytes(storage_key, file_bytes, content_type=content_type)
+    try:
+        storage_client.upload_file_bytes(storage_key, file_bytes, content_type=content_type)
+    except Exception as e:
+        logger.error(f"Storage upload failed for patient={patient_id}: {e}")
+        raise HTTPException(status_code=502, detail=f"Could not store document in object storage: {e}")
 
     # Step 2: Write documents row to DB
     doc = Document(

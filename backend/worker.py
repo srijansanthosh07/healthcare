@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from config import settings
 from db import SessionLocal
-from models import Document, Extraction, Event
+from models import Document, Extraction, Event, Reminder
 from minio_client import storage_client
 from ocr_nlp import extract_raw_text, run_llm_structured_extraction, evaluate_extraction_confidence
 
@@ -150,6 +150,28 @@ def process_document_job(document_id: str):
 
             if events_to_create:
                 db.add_all(events_to_create)
+
+            # Step 5: Auto-generate medication reminders from prescription extractions (FR-25)
+            try:
+                for med in extracted_json.get("medicines", []):
+                    name = med.get("name")
+                    if not name:
+                        continue
+                    existing = db.query(Reminder).filter(
+                        Reminder.patient_id == doc.patient_id,
+                        Reminder.medicine == name,
+                        Reminder.status == "pending"
+                    ).first()
+                    if not existing:
+                        db.add(Reminder(
+                            patient_id=doc.patient_id,
+                            medicine=name,
+                            dose=med.get("dose", "As prescribed"),
+                            schedule_json={"time": "08:00 AM", "frequency": med.get("frequency", "Once daily")},
+                            status="pending"
+                        ))
+            except Exception as rem_err:
+                logger.warning(f"Reminder auto-generation skipped for doc={doc.id}: {rem_err}")
 
             doc.status = "completed"
             db.commit()

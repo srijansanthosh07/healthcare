@@ -22,9 +22,10 @@ def get_patient_reminders(
     Returns active medication reminders for the current patient (FR-25).
     """
     patient = db.query(Patient).filter(Patient.user_id == current_user.id).first()
-    patient_id = patient.id if patient else "demo-patient-01"
+    if not patient:
+        return []
 
-    reminders = db.query(Reminder).filter(Reminder.patient_id == patient_id).order_by(Reminder.created_at.desc()).all()
+    reminders = db.query(Reminder).filter(Reminder.patient_id == patient.id).order_by(Reminder.created_at.desc()).all()
     return [{
         "id": r.id,
         "medicine": r.medicine,

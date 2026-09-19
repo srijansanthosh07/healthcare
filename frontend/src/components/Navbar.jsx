@@ -2,6 +2,10 @@ import React from 'react';
 import { Activity, Upload, User, LogOut, Stethoscope, ShieldCheck, HeartHandshake } from 'lucide-react';
 
 export default function Navbar({ patientInfo, onOpenUpload, onOpenAuth, onLogout, user, activePortal, onPortalChange }) {
+  const isPatient = user?.role === 'patient';
+  const isDoctor = user?.role === 'doctor';
+  const isFamily = user?.role === 'family';
+
   return (
     <header className="header-nav">
       <div className="brand">
@@ -16,35 +20,43 @@ export default function Navbar({ patientInfo, onOpenUpload, onOpenAuth, onLogout
         </div>
       </div>
 
-      {/* Portal Switcher Tabs */}
+      {/* Portal Switcher Tabs - Role-based */}
       <div className="filter-pills" style={{ margin: 0 }}>
-        <button 
-          className={`pill-btn ${activePortal === 'patient' ? 'active' : ''}`}
-          onClick={() => onPortalChange('patient')}
-        >
-          <User size={13} style={{ display: 'inline', marginRight: '4px' }} /> Patient View
-        </button>
+        {isPatient && (
+          <button 
+            className={`pill-btn ${activePortal === 'patient' ? 'active' : ''}`}
+            onClick={() => onPortalChange('patient')}
+          >
+            <User size={13} style={{ display: 'inline', marginRight: '4px' }} /> Patient View
+          </button>
+        )}
 
-        <button 
-          className={`pill-btn ${activePortal === 'doctor' ? 'active' : ''}`}
-          onClick={() => onPortalChange('doctor')}
-        >
-          <Stethoscope size={13} style={{ display: 'inline', marginRight: '4px' }} /> Doctor Portal (FR-21)
-        </button>
+        {isDoctor && (
+          <button 
+            className={`pill-btn ${activePortal === 'doctor' ? 'active' : ''}`}
+            onClick={() => onPortalChange('doctor')}
+          >
+            <Stethoscope size={13} style={{ display: 'inline', marginRight: '4px' }} /> Doctor Portal
+          </button>
+        )}
 
-        <button 
-          className={`pill-btn ${activePortal === 'family' ? 'active' : ''}`}
-          onClick={() => onPortalChange('family')}
-        >
-          <HeartHandshake size={13} style={{ display: 'inline', marginRight: '4px' }} /> Family Portal (FR-23)
-        </button>
+        {(isPatient || isDoctor) && (
+          <button 
+            className={`pill-btn ${activePortal === 'family' ? 'active' : ''}`}
+            onClick={() => onPortalChange('family')}
+          >
+            <HeartHandshake size={13} style={{ display: 'inline', marginRight: '4px' }} /> Family Access
+          </button>
+        )}
 
-        <button 
-          className={`pill-btn ${activePortal === 'consent' ? 'active' : ''}`}
-          onClick={() => onPortalChange('consent')}
-        >
-          <ShieldCheck size={13} style={{ display: 'inline', marginRight: '4px' }} /> Consent & Audit (FR-20)
-        </button>
+        {isPatient && (
+          <button 
+            className={`pill-btn ${activePortal === 'consent' ? 'active' : ''}`}
+            onClick={() => onPortalChange('consent')}
+          >
+            <ShieldCheck size={13} style={{ display: 'inline', marginRight: '4px' }} /> Consent & Audit
+          </button>
+        )}
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -55,9 +67,11 @@ export default function Navbar({ patientInfo, onOpenUpload, onOpenAuth, onLogout
           </div>
         )}
 
-        <button className="btn-primary" onClick={onOpenUpload}>
-          <Upload size={16} /> Upload Document
-        </button>
+        {isPatient && activePortal === 'patient' && (
+          <button className="btn-primary" onClick={onOpenUpload}>
+            <Upload size={16} /> Upload Document
+          </button>
+        )}
 
         {user ? (
           <button className="btn-secondary" onClick={onLogout} title="Log out">
